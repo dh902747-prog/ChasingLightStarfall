@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memory Keys</title>
+    <title>Kimi 粒子世界</title>
     <style>
         * {
             margin: 0;
@@ -12,446 +12,280 @@
         }
 
         body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #000;
-            font-family: 'Courier New', monospace;
-            color: #fff;
-            padding: 20px;
-        }
-
-        .keyboard {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .row {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-        }
-
-        .key {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            font-weight: bold;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            user-select: none;
-            color: #555;
-            text-transform: uppercase;
-        }
-
-        .key:hover:not(.lit):not(.cleared) {
-            border-color: #666;
-        }
-
-        .key.lit {
-            background: #fff;
-            border-color: #fff;
-            color: #000;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .key.cleared {
-            background: #000;
-            border-color: #222;
-            color: #222;
-        }
-
-        .key.wrong {
-            animation: shake 0.3s ease;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.06); }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .info {
-            margin-top: 30px;
-            font-size: 0.9rem;
-            color: #444;
-            letter-spacing: 2px;
-        }
-
-        .start-btn {
-            margin-top: 20px;
-            padding: 10px 40px;
-            font-size: 0.9rem;
-            background: #fff;
-            color: #000;
-            border: none;
-            border-radius: 2px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            transition: all 0.2s;
-        }
-
-        .start-btn:hover {
-            background: #ccc;
-        }
-
-        /* 特殊键宽度 */
-        .key-tab { width: 75px; }
-        .key-caps { width: 85px; }
-        .key-enter { width: 90px; }
-        .key-shift { width: 110px; }
-        .key-space { width: 280px; }
-        .key-ctrl { width: 65px; }
-        .key-fn { width: 50px; }
-
-        /* 不可点击的装饰键 */
-        .key.dead {
-            cursor: default;
-            color: #222;
-            border-color: #1a1a1a;
-        }
-        .key.dead:hover {
-            border-color: #1a1a1a;
-        }
-
-        @media (max-width: 700px) {
-            .key { width: 36px; height: 36px; font-size: 0.8rem; }
-            .key-tab { width: 55px; }
-            .key-caps { width: 65px; }
-            .key-enter { width: 70px; }
-            .key-shift { width: 85px; }
-            .key-space { width: 200px; }
-            .key-ctrl { width: 50px; }
-            .key-fn { width: 36px; }
-        }
-
-        /* ===== 进度条样式 ===== */
-        .timer-bar-container {
-            width: 100%;
-            max-width: 600px;
-            height: 6px;
-            background: #000;
-            margin-bottom: 20px;
-            border-radius: 3px;
+            width: 100vw;
+            height: 100vh;
+            background: #0a0a1a;
             overflow: hidden;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            cursor: crosshair;
+            position: relative;
+            font-family: -apple-system, sans-serif;
         }
 
-        .timer-bar-container.active {
-            opacity: 1;
-        }
-
-        .timer-bar-fill {
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            transform-origin: left;
-        }
-
-        .timer-bar-fill.running {
-            animation: barDrain 2s linear forwards;
-        }
-
-        @keyframes barDrain {
-            0% { transform: scaleX(1); }
-            100% { transform: scaleX(0); }
-        }
-
-        .game-over-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            opacity: 0;
+        /* 提示文字 */
+        .hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 18px;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            user-select: none;
+            transition: opacity 0.5s;
         }
 
-        .game-over-overlay.show {
-            opacity: 1;
-            pointer-events: all;
+        .hint.hidden {
+            opacity: 0;
         }
 
-        .game-over-text {
-            font-size: 2rem;
-            letter-spacing: 4px;
-            margin-bottom: 30px;
-            color: #fff;
+        /* Kimi 容器 */
+        .kimi-container {
+            position: absolute;
+            width: 84px;
+            height: 84px;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
         }
 
-        .retry-btn {
-            padding: 12px 50px;
-            font-size: 1rem;
+        /* Kimi 主体 */
+        .kimi-face {
+            position: absolute;
+            width: 56px;
+            height: 56px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(180deg, #4a9eff 0%, #1e6fdb 100%);
+            border-radius: 50%;
+            box-shadow:
+                0 0 20px rgba(74, 158, 255, 0.4),
+                0 0 40px rgba(74, 158, 255, 0.2),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            animation: breathe 2s ease-in-out infinite;
+        }
+
+        .eyes {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            animation: eyesBlink 4s ease-in-out infinite;
+        }
+
+        .eye {
+            width: 10px;
+            height: 14px;
             background: #fff;
-            color: #000;
-            border: none;
-            border-radius: 2px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            transition: all 0.2s;
+            border-radius: 50%;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
-        .retry-btn:hover {
-            background: #ccc;
+        /* 生命周期进度环 */
+        .life-ring {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-90deg);
+            opacity: 0.6;
+        }
+
+        .life-ring circle {
+            fill: none;
+            stroke: rgba(74, 158, 255, 0.3);
+            stroke-width: 2;
+        }
+
+        .life-ring .progress {
+            stroke: #4a9eff;
+            stroke-linecap: round;
+            transition: stroke-dashoffset linear;
+        }
+
+        /* 粒子 */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #4a9eff;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 6px rgba(74, 158, 255, 0.8);
+        }
+
+        /* 动画定义 */
+        @keyframes breathe {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        @keyframes eyesBlink {
+            0%, 45%, 55%, 100% { transform: translateX(-50%) scaleY(1); }
+            50% { transform: translateX(-50%) scaleY(0.1); }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        /* 消散状态 */
+        .kimi-container.dying .kimi-face {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+
+        .kimi-container.dying .life-ring {
+            opacity: 0;
+            transition: opacity 0.3s;
         }
     </style>
 </head>
 <body>
-    <div class="timer-bar-container" id="timerBarContainer">
-        <div class="timer-bar-fill" id="timerBarFill"></div>
-    </div>
-
-    <div class="keyboard" id="keyboard"></div>
-
-    <div class="info" id="info">Press SPACE or Click to Start</div>
-    <button class="start-btn" id="startBtn" onclick="startGame()">Play</button>
-
-    <div class="game-over-overlay" id="gameOverOverlay">
-        <div class="game-over-text">TIME'S UP</div>
-        <button class="retry-btn" onclick="retryGame()">RETRY</button>
-    </div>
+    <div class="hint" id="hint">点击空白处，生成 Kimi ✨</div>
 
     <script>
-        const KEYBOARD_LAYOUT = [
-            ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '⌫'],
-            ['⇥', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\\'],
-            ['⇪', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', '⏎'],
-            ['⇧', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', '⇧'],
-            ['⌃', '⌥', '⌘', ' ', '⌘', '⌥', '⌃']
-        ];
+        const LIFETIME = 5000; // 存活时间 5秒
+        const FADE_DURATION = 800; // 消散动画时长
 
-        const PLAYABLE_KEYS = 'QWERTYUIOPASDFGHJKLZXCVBNM'.split('');
+        const hint = document.getElementById('hint');
+        let hintShown = true;
 
-        let gameState = {
-            isPlaying: false,
-            round: 0,
-            litKeys: new Set(),
-            clearedKeys: new Set(),
-            canClick: false,
-            baseCount: 3,
-            intervalId: null,
-            timerTimeoutId: null,
-            lightUpTimeouts: []
-        };
-
-        const keyboardEl = document.getElementById('keyboard');
-        const infoEl = document.getElementById('info');
-        const startBtn = document.getElementById('startBtn');
-        const timerBarContainer = document.getElementById('timerBarContainer');
-        const timerBarFill = document.getElementById('timerBarFill');
-        const gameOverOverlay = document.getElementById('gameOverOverlay');
-
-        function initKeyboard() {
-            keyboardEl.innerHTML = '';
-            KEYBOARD_LAYOUT.forEach((row) => {
-                const rowEl = document.createElement('div');
-                rowEl.className = 'row';
-
-                row.forEach(key => {
-                    const keyEl = document.createElement('div');
-                    keyEl.className = 'key';
-                    keyEl.textContent = key;
-
-                    if (key === '⇥') keyEl.classList.add('key-tab');
-                    else if (key === '⇪') keyEl.classList.add('key-caps');
-                    else if (key === '⏎') keyEl.classList.add('key-enter');
-                    else if (key === '⇧') keyEl.classList.add('key-shift');
-                    else if (key === ' ') keyEl.classList.add('key-space');
-                    else if (['⌃','⌥','⌘'].includes(key)) keyEl.classList.add('key-ctrl');
-                    else if (key === '⌫') keyEl.classList.add('key-fn');
-
-                    if (!PLAYABLE_KEYS.includes(key)) {
-                        keyEl.classList.add('dead');
-                    } else {
-                        keyEl.dataset.letter = key;
-                        keyEl.onclick = () => handleClick(key);
-                    }
-
-                    rowEl.appendChild(keyEl);
-                });
-
-                keyboardEl.appendChild(rowEl);
-            });
-        }
-
-        function getLitCount() {
-            return Math.min(gameState.baseCount + Math.floor(gameState.round / 3), 12);
-        }
-
-        function getRandomLetters(count) {
-            const shuffled = [...PLAYABLE_KEYS].sort(() => Math.random() - 0.5);
-            return shuffled.slice(0, count);
-        }
-
-        function clearAllTimeouts() {
-            if (gameState.timerTimeoutId) {
-                clearTimeout(gameState.timerTimeoutId);
-                gameState.timerTimeoutId = null;
+        document.addEventListener('click', (e) => {
+            // 隐藏提示
+            if (hintShown) {
+                hint.classList.add('hidden');
+                hintShown = false;
             }
-            gameState.lightUpTimeouts.forEach(id => clearTimeout(id));
-            gameState.lightUpTimeouts = [];
-        }
 
-        function startTimer() {
-            if (gameState.timerTimeoutId) {
-                clearTimeout(gameState.timerTimeoutId);
-            }
-            timerBarFill.classList.remove('running');
-            void timerBarFill.offsetWidth;
-            timerBarContainer.classList.add('active');
-            timerBarFill.classList.add('running');
-
-            gameState.timerTimeoutId = setTimeout(() => {
-                gameOver();
-            }, 2000);
-        }
-
-        function stopTimer() {
-            clearAllTimeouts();
-            timerBarFill.classList.remove('running');
-            timerBarContainer.classList.remove('active');
-        }
-
-        function gameOver() {
-            gameState.isPlaying = false;
-            gameState.canClick = false;
-            stopTimer();
-            document.querySelectorAll('.key.lit').forEach(k => k.classList.remove('lit'));
-            gameOverOverlay.classList.add('show');
-        }
-
-        function retryGame() {
-            gameOverOverlay.classList.remove('show');
-            startGame();
-        }
-
-        function lightUpKeys() {
-            gameState.litKeys.clear();
-            gameState.clearedKeys.clear();
-            gameState.canClick = false;
-
-            document.querySelectorAll('.key').forEach(k => {
-                k.classList.remove('lit', 'cleared', 'wrong');
-            });
-
-            const count = getLitCount();
-            const letters = getRandomLetters(count);
-
-            letters.forEach((letter, index) => {
-                gameState.litKeys.add(letter);
-                const id = setTimeout(() => {
-                    if (!gameState.isPlaying) return;
-                    const el = document.querySelector(`[data-letter="${letter}"]`);
-                    if (el) el.classList.add('lit');
-                }, index * 180);
-                gameState.lightUpTimeouts.push(id);
-            });
-
-            const id = setTimeout(() => {
-                if (!gameState.isPlaying) return;
-                gameState.canClick = true;
-                infoEl.textContent = `第 ${gameState.round + 1} 轮 · ${count} 个`;
-                startTimer();
-            }, letters.length * 180 + 250);
-            gameState.lightUpTimeouts.push(id);
-        }
-
-        function handleClick(letter) {
-            if (!gameState.isPlaying || !gameState.canClick) return;
-
-            const el = document.querySelector(`[data-letter="${letter}"]`);
-
-            if (gameState.litKeys.has(letter) && !gameState.clearedKeys.has(letter)) {
-                gameState.clearedKeys.add(letter);
-                el.classList.remove('lit');
-                el.classList.add('cleared');
-
-                if (gameState.clearedKeys.size === gameState.litKeys.size) {
-                    gameState.canClick = false;
-                    gameState.round++;
-                    stopTimer();
-                    infoEl.textContent = '完成';
-
-                    const id = setTimeout(() => {
-                        if (!gameState.isPlaying) return;
-                        lightUpKeys();
-                    }, 600);
-                    gameState.lightUpTimeouts.push(id);
-                }
-            } else if (!gameState.litKeys.has(letter) || gameState.clearedKeys.has(letter)) {
-                el.classList.add('wrong');
-                setTimeout(() => el.classList.remove('wrong'), 300);
-            }
-        }
-
-        function startGame() {
-            if (gameState.isPlaying) return;
-
-            clearAllTimeouts();
-
-            gameState = {
-                isPlaying: true,
-                round: 0,
-                litKeys: new Set(),
-                clearedKeys: new Set(),
-                canClick: false,
-                baseCount: 3,
-                intervalId: null,
-                timerTimeoutId: null,
-                lightUpTimeouts: []
-            };
-
-            startBtn.style.display = 'none';
-            gameOverOverlay.classList.remove('show');
-            lightUpKeys();
-        }
-
-        document.addEventListener('keydown', (e) => {
-            const key = e.key.toUpperCase();
-            if (PLAYABLE_KEYS.includes(key)) {
-                const el = document.querySelector(`[data-letter="${key}"]`);
-                if (el) {
-                    el.style.transform = 'scale(0.92)';
-                    setTimeout(() => el.style.transform = '', 100);
-                }
-                handleClick(key);
-            }
-            if (key === ' ' && !gameState.isPlaying) {
-                startGame();
-            }
+            createKimi(e.clientX, e.clientY);
         });
 
-        initKeyboard();
+        function createKimi(x, y) {
+            const container = document.createElement('div');
+            container.className = 'kimi-container';
+            container.style.left = x + 'px';
+            container.style.top = y + 'px';
+
+            // 生命环 SVG
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('class', 'life-ring');
+            svg.setAttribute('viewBox', '0 0 70 70');
+
+            const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            bgCircle.setAttribute('cx', '35');
+            bgCircle.setAttribute('cy', '35');
+            bgCircle.setAttribute('r', '33');
+
+            const progressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            progressCircle.setAttribute('class', 'progress');
+            progressCircle.setAttribute('cx', '35');
+            progressCircle.setAttribute('cy', '35');
+            progressCircle.setAttribute('r', '33');
+
+            const circumference = 2 * Math.PI * 33;
+            progressCircle.setAttribute('stroke-dasharray', circumference);
+            progressCircle.setAttribute('stroke-dashoffset', '0');
+            progressCircle.style.transitionDuration = LIFETIME + 'ms';
+
+            svg.appendChild(bgCircle);
+            svg.appendChild(progressCircle);
+
+            // Kimi 脸
+            const face = document.createElement('div');
+            face.className = 'kimi-face';
+
+            const eyes = document.createElement('div');
+            eyes.className = 'eyes';
+
+            const leftEye = document.createElement('div');
+            leftEye.className = 'eye';
+
+            const rightEye = document.createElement('div');
+            rightEye.className = 'eye';
+
+            eyes.appendChild(leftEye);
+            eyes.appendChild(rightEye);
+            face.appendChild(eyes);
+
+            container.appendChild(svg);
+            container.appendChild(face);
+            document.body.appendChild(container);
+
+            // 触发进度环动画（下一帧）
+            requestAnimationFrame(() => {
+                progressCircle.style.strokeDashoffset = circumference;
+            });
+
+            // 定时消散
+            setTimeout(() => {
+                disintegrate(container, x, y);
+            }, LIFETIME);
+        }
+
+        function disintegrate(container, centerX, centerY) {
+            container.classList.add('dying');
+
+            // 获取脸的位置（相对视口）
+            const rect = container.querySelector('.kimi-face').getBoundingClientRect();
+            const faceCenterX = rect.left + rect.width / 2;
+            const faceCenterY = rect.top + rect.height / 2;
+            const faceRadius = rect.width / 2;
+
+            // 生成粒子
+            const particleCount = 40;
+            const particles = [];
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                // 在圆形范围内随机分布
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * faceRadius;
+                const startX = faceCenterX + Math.cos(angle) * distance;
+                const startY = faceCenterY + Math.sin(angle) * distance;
+
+                particle.style.left = startX + 'px';
+                particle.style.top = startY + 'px';
+                particle.style.opacity = '1';
+
+                document.body.appendChild(particle);
+                particles.push(particle);
+
+                // 随机飞散方向和距离
+                const flyAngle = Math.random() * Math.PI * 2;
+                const flyDistance = 80 + Math.random() * 120;
+                const destX = Math.cos(flyAngle) * flyDistance;
+                const destY = Math.sin(flyAngle) * flyDistance;
+                const scale = 0.5 + Math.random() * 1.5;
+                const rotate = Math.random() * 720 - 360;
+
+                // 动画
+                const duration = 600 + Math.random() * 400;
+
+                particle.animate([
+                    {
+                        transform: 'translate(-50%, -50%) scale(1)',
+                        opacity: 1
+                    },
+                    {
+                        transform: `translate(calc(-50% + ${destX}px), calc(-50% + ${destY}px)) scale(${scale}) rotate(${rotate}deg)`,
+                        opacity: 0
+                    }
+                ], {
+                    duration: duration,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                    fill: 'forwards'
+                }).onfinish = () => particle.remove();
+            }
+
+            // 清理 Kimi 容器
+            setTimeout(() => {
+                container.remove();
+            }, 300);
+        }
     </script>
 </body>
 </html>
